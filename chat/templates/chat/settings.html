@@ -1,0 +1,29 @@
+{% extends "chat/base.html" %}
+{% block title %}Settings • AI Support{% endblock %}
+
+{% block layout %}
+<h2>Settings</h2>
+<div style="background:var(--panel);padding:12px;border-radius:10px">
+  <div style="margin-bottom:10px">
+    <label>Model (client-side preview)</label><br>
+    <select id="modelSelect" style="padding:8px;border-radius:8px;">
+      <option value="gemini-flash-latest">gemini-flash-latest</option>
+      <option value="gemini-pro-latest">gemini-pro-latest</option>
+    </select>
+  </div>
+
+  <div style="margin-top:10px">
+    <label>Theme</label><br>
+    <button class="btn" onclick="document.body.setAttribute('data-theme','dark')">Dark</button>
+    <button class="btn" onclick="document.body.setAttribute('data-theme','light')">Light</button>
+  </div>
+
+  <p class="small" style="color:var(--muted);margin-top:12px">Settings here are local UI changes only. To persist model selection server-side you'd implement an API.</p>
+</div>
+
+<script>
+  const sel = document.getElementById('modelSelect');
+  sel.value = localStorage.getItem('preferredModel') || sel.value;
+  sel.addEventListener('change', ()=> localStorage.setItem('preferredModel', sel.value));
+</script>
+{% endblock %}

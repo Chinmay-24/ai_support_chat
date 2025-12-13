@@ -1,0 +1,153 @@
+{% extends "chat/base.html" %}
+{% block title %}Features • AI Support Chat{% endblock %}
+
+{% block layout %}
+
+<style>
+    .feature-card {
+        background: rgba(255,255,255,0.03);
+        padding: 18px;
+        border-radius: 14px;
+        transition: 0.25s ease;
+        border: 1px solid rgba(255,255,255,0.05);
+    }
+    .feature-card:hover {
+        transform: translateY(-4px);
+        background: rgba(255,255,255,0.06);
+        border-color: rgba(255,255,255,0.12);
+    }
+    .icon-box {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        background: linear-gradient(135deg,#3b82f6,#0ea5e9);
+        margin-bottom: 10px;
+    }
+</style>
+
+<div class="card" style="padding:25px;">
+
+    <!-- Hero Section -->
+    <h1 style="margin-bottom:8px;">Features</h1>
+    <p style="color:var(--muted); margin-bottom:25px;">
+        Explore the powerful capabilities built into your AI Support System.
+    </p>
+
+    <!-- Core Features Grid -->
+    <h2 style="margin-top:20px;">Core System Features</h2>
+
+    <div style="margin-top:15px; display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:16px;">
+
+        <div class="feature-card">
+            <div class="icon-box">🤖</div>
+            <strong>Multi-Domain AI Support</strong>
+            <p style="color:var(--muted); margin-top:6px;">
+                Healthcare, Tech, Customer Support, Education, Finance — all in one system.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="icon-box">⚡</div>
+            <strong>Powered by Gemini 2.5</strong>
+            <p style="color:var(--muted); margin-top:6px;">
+                Uses the latest Gemini models for real-time, high-accuracy responses.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="icon-box">💬</div>
+            <strong>Persistent Chat History</strong>
+            <p style="color:var(--muted); margin-top:6px;">
+                All conversations are saved securely in MongoDB.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="icon-box">📊</div>
+            <strong>Dashboard Analytics</strong>
+            <p style="color:var(--muted); margin-top:6px;">
+                Track activity, user interactions, and performance metrics.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="icon-box">🎨</div>
+            <strong>Modern UI Design</strong>
+            <p style="color:var(--muted); margin-top:6px;">
+                Fully responsive layout with sidebar navigation, topbar, and themed visuals.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="icon-box">🔌</div>
+            <strong>API-Driven Architecture</strong>
+            <p style="color:var(--muted); margin-top:6px;">
+                AJAX-based communication using clean Django REST endpoints.
+            </p>
+        </div>
+
+    </div>
+
+    <!-- Category Section -->
+    <h2 style="margin-top:35px;">Domain-Specific Modes</h2>
+    <p style="color:var(--muted); margin-bottom:20px;">
+        Tailored assistance for different user needs.
+    </p>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:16px;">
+
+        <div class="feature-card">
+            <div class="icon-box">🏥</div>
+            <strong>Healthcare Assistant</strong>
+            <p style="color:var(--muted); margin-top:6px;">
+                Symptoms explanation, health guidance, and medical FAQs (non-diagnostic).
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="icon-box">🛠️</div>
+            <strong>Tech Support</strong>
+            <p style="color:var(--muted); margin-top:6px;">
+                Coding help, bug fixing, debugging assistance, and tech solutions.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="icon-box">📞</div>
+            <strong>Customer Support</strong>
+            <p style="color:var(--muted); margin-top:6px;">
+                Issue handling, complaints, order tracking, FAQs and more.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="icon-box">🌐</div>
+            <strong>General Knowledge Mode</strong>
+            <p style="color:var(--muted); margin-top:6px;">
+                Ask anything — science, history, math, entertainment, and more.
+            </p>
+        </div>
+
+    </div>
+
+    <!-- Extensibility Section -->
+    <h2 style="margin-top:40px;">Extensibility</h2>
+    <p style="color:var(--muted);">
+        The system is designed to be modular. New pages, new AI modes, and new features can be added 
+        without affecting existing functionality.
+    </p>
+
+    <ul style="margin-top:10px; padding-left:20px; color:var(--muted);">
+        <li>Plug-and-play AI modules</li>
+        <li>Easy integration with external APIs</li>
+        <li>Add more dashboards for analytics</li>
+        <li>Future-ready architecture</li>
+    </ul>
+
+</div>
+
+{% endblock %}

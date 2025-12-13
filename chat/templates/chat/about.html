@@ -1,0 +1,113 @@
+{% extends "chat/base.html" %}
+{% block title %}About • AI Support Chat{% endblock %}
+
+{% block layout %}
+<div class="card" style="padding:22px; line-height:1.55">
+
+  <!-- Page Title -->
+  <h2 style="margin-bottom:6px">About This Project</h2>
+  <div style="color:var(--muted); font-size:0.95rem; margin-bottom:20px">
+    Intelligent multi-domain support assistant powered by Google Gemini & Django.
+  </div>
+
+  <!-- Overview -->
+  <div style="background:rgba(255,255,255,0.02); padding:18px; border-radius:10px; margin-bottom:20px;">
+    <h3 style="margin:0 0 10px 0;">Overview</h3>
+    <p>
+      This platform is a fully functional AI-powered support system capable of assisting users across 
+      multiple domains including:
+    </p>
+    <ul style="padding-left:20px; margin-top:8px;">
+      <li>Technical Support</li>
+      <li>Healthcare Information Assistance</li>
+      <li>Customer Support Queries</li>
+      <li>General Question Answering</li>
+    </ul>
+
+    <p style="margin-top:12px;">
+      Built using <strong>Django</strong>, <strong>MongoDB</strong>, and <strong>Gemini 2.0/2.5 models</strong>, 
+      the system provides fast, accurate and intelligent responses with persistent chat history, dashboard analytics, 
+      and a clean modern UI.
+    </p>
+  </div>
+
+  <!-- Features -->
+  <div style="margin-bottom:20px;">
+    <h3 style="margin-bottom:10px;">Key Features</h3>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px;">
+      <div style="background:rgba(255,255,255,0.02); padding:14px; border-radius:10px;">
+        <strong>✓ Multi-domain AI Support</strong>
+        <p style="color:var(--muted); font-size:0.9rem;">Healthcare, Tech, Customer Support, and more.</p>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.02); padding:14px; border-radius:10px;">
+        <strong>✓ Real-time Gemini AI Responses</strong>
+        <p style="color:var(--muted); font-size:0.9rem;">Powered by Google's most advanced Gemini models.</p>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.02); padding:14px; border-radius:10px;">
+        <strong>✓ Conversation History</strong>
+        <p style="color:var(--muted); font-size:0.9rem;">All chats are saved to MongoDB automatically.</p>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.02); padding:14px; border-radius:10px;">
+        <strong>✓ Dashboard & Analytics</strong>
+        <p style="color:var(--muted); font-size:0.9rem;">Track usage, activity, and system performance.</p>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.02); padding:14px; border-radius:10px;">
+        <strong>✓ Clean Modern UI</strong>
+        <p style="color:var(--muted); font-size:0.9rem;">Responsive layout with sidebar, navbar & themes.</p>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.02); padding:14px; border-radius:10px;">
+        <strong>✓ Extensible Design</strong>
+        <p style="color:var(--muted); font-size:0.9rem;">Add more pages, modes, or features easily.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Technologies -->
+  <div style="margin-bottom:20px;">
+    <h3 style="margin-bottom:10px;">Technologies Used</h3>
+    <ul style="padding-left:20px;">
+      <li><strong>Django 6</strong> – Backend framework</li>
+      <li><strong>MongoDB</strong> – NoSQL database for chat history</li>
+      <li><strong>Google Gemini API</strong> – AI model for generating responses</li>
+      <li><strong>HTML, CSS, JS</strong> – Modern frontend with responsive layout</li>
+      <li><strong>Fetch API</strong> – For AJAX calls to Django</li>
+    </ul>
+  </div>
+
+  <!-- Creator -->
+  <div style="background:rgba(255,255,255,0.03); padding:18px; border-radius:10px; margin-top:30px;">
+    <h3 style="margin-top:0;">Creator</h3>
+
+    <div style="display:flex; gap:14px; align-items:center;">
+      <div style="
+        width:60px; height:60px; 
+        background:linear-gradient(135deg,#3b82f6,#0ea5e9);
+        border-radius:50%;
+      "></div>
+
+      <div>
+        <div style="font-weight:700; font-size:1.2rem;">Chinmay Naik</div>
+        <div style="color:var(--muted); font-size:0.9rem; margin-top:4px;">
+          Developer • AI/ML Engineer • Creator of this AI Support System
+        </div>
+      </div>
+    </div>
+
+    <p style="margin-top:16px;">
+      This project was designed to demonstrate modern full-stack development skills — 
+      combining AI, backend engineering, frontend design, databases, and cloud-ready architecture.
+    </p>
+  </div>
+
+  <div style="margin-top:20px; text-align:center; color:var(--muted); font-size:0.85rem;">
+    © {{year}} — Created by <strong>Chinmay Naik</strong>. All rights reserved.
+  </div>
+
+</div>
+{% endblock %}

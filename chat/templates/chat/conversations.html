@@ -1,0 +1,28 @@
+{% extends "chat/base.html" %}
+{% block title %}Conversations • AI Support{% endblock %}
+
+{% block layout %}
+<h2>Conversations</h2>
+<p style="color:var(--muted)">This page shows local conversation list. Click on one to open chat.</p>
+
+<div id="convWrapper" style="margin-top:12px">
+  <div id="localConvos"></div>
+</div>
+
+<script>
+  // show local conversations (from previous sidebar localStorage)
+  const convContainer = document.getElementById('localConvos');
+  const convs = JSON.parse(localStorage.getItem('conversations') || '[]');
+  if (!convs.length) {
+    convContainer.innerHTML = '<div style="color:var(--muted)">No conversations found.</div>';
+  } else {
+    convContainer.innerHTML = '';
+    convs.forEach(c => {
+      const el = document.createElement('div');
+      el.style.padding='10px'; el.style.margin='6px 0'; el.style.borderRadius='8px'; el.style.background='var(--panel)';
+      el.innerHTML = `<strong>${c.name || c.id.slice(0,8)}</strong><div style="color:var(--muted)">${c.last || ''}</div><div style="margin-top:6px"><a href="/chat/?conversation_id=${c.id}" class="btn">Open</a></div>`;
+      convContainer.appendChild(el);
+    });
+  }
+</script>
+{% endblock %}

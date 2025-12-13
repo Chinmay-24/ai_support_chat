@@ -1,0 +1,263 @@
+{% extends "chat/base.html" %}
+{% block title %}Dashboard • AI Support Chat{% endblock %}
+
+{% block layout %}
+<div class="card" style="height:100%; display:flex; flex-direction:column; gap:14px;">
+
+  <!-- Header -->
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <div>
+      <h2 style="margin:0">Dashboard</h2>
+      <div style="color:var(--muted); font-size:0.95rem; margin-top:6px">Overview of conversations, AI usage and health</div>
+    </div>
+
+    <div style="display:flex;gap:10px;align-items:center">
+      <button class="btn" onclick="location.href='{% url 'chat_page' %}'">Open Chat</button>
+      <button class="btn" onclick="exportAll()">Export All</button>
+      <button class="btn" onclick="clearAllClientData()">Clear Local Data</button>
+    </div>
+  </div>
+
+  <!-- Stats row -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+    <div style="background:rgba(255,255,255,0.02);padding:14px;border-radius:10px">
+      <div style="font-size:0.85rem;color:var(--muted)">Total Conversations</div>
+      <div id="statConvos" style="font-weight:700;font-size:1.45rem;margin-top:6px">—</div>
+    </div>
+
+    <div style="background:rgba(255,255,255,0.02);padding:14px;border-radius:10px">
+      <div style="font-size:0.85rem;color:var(--muted)">Total Messages</div>
+      <div id="statMessages" style="font-weight:700;font-size:1.45rem;margin-top:6px">—</div>
+    </div>
+
+    <div style="background:rgba(255,255,255,0.02);padding:14px;border-radius:10px">
+      <div style="font-size:0.85rem;color:var(--muted)">Avg AI Response (s)</div>
+      <div id="statLatency" style="font-weight:700;font-size:1.45rem;margin-top:6px">—</div>
+    </div>
+
+    <div style="background:rgba(255,255,255,0.02);padding:14px;border-radius:10px">
+      <div style="font-size:0.85rem;color:var(--muted)">Active Conversations</div>
+      <div id="statActive" style="font-weight:700;font-size:1.45rem;margin-top:6px">—</div>
+    </div>
+  </div>
+
+  <!-- Middle area: chart + recent convos -->
+  <div style="display:flex;gap:12px;flex:1;min-height:300px">
+    <!-- Chart card -->
+    <div style="flex:2;background:rgba(255,255,255,0.02);border-radius:10px;padding:12px;display:flex;flex-direction:column;">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-weight:700">Activity (last 7 days)</div>
+        <div style="color:var(--muted);font-size:0.9rem">Messages per day</div>
+      </div>
+
+      <canvas id="activityChart" width="800" height="220" style="margin-top:12px; background:transparent; border-radius:8px;"></canvas>
+
+      <div style="margin-top:8px;color:var(--muted);font-size:0.85rem">This chart is client-side generated from recent conversation data. For server stats, implement `/api/stats/`.</div>
+    </div>
+
+    <!-- Recent conversations -->
+    <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
+      <div style="font-weight:700">Recent Conversations</div>
+      <div id="recentList" style="overflow:auto;flex:1;padding:6px;display:flex;flex-direction:column;gap:8px">
+        <!-- items appended by JS -->
+      </div>
+      <div style="color:var(--muted);font-size:0.9rem">Click a conversation to open it in chat.</div>
+    </div>
+  </div>
+
+  <!-- Footer/notes -->
+  <div style="display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:0.9rem">
+    <div>Last updated: <span id="lastUpdated">—</span></div>
+    <div>System status: <strong id="sysStatus" style="color:#60a5fa">OK</strong></div>
+  </div>
+</div>
+
+<!-- Scripts to populate dashboard (client-first; try server endpoints if available) -->
+<script>
+  // Utility: try fetch JSON, else return null
+  async function tryFetchJson(url){
+    try {
+      const r = await fetch(url, { credentials: 'same-origin' });
+      if (!r.ok) return null;
+      return await r.json();
+    } catch(e) { return null; }
+  }
+
+  // populate stats: prefer server /api/stats, else compute from localStorage conversations/messages
+  async function populateStats(){
+    // attempt server endpoint
+    const serverStats = await tryFetchJson('/api/stats/');
+    if (serverStats && serverStats.total_conversations != null){
+      document.getElementById('statConvos').textContent = serverStats.total_conversations;
+      document.getElementById('statMessages').textContent = serverStats.total_messages;
+      document.getElementById('statLatency').textContent = serverStats.avg_response_time_seconds ?? '—';
+      document.getElementById('statActive').textContent = serverStats.active_conversations ?? '—';
+      document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+      renderActivityChart(serverStats.activity || []);
+      renderRecent(serverStats.recent_conversations || []);
+      return;
+    }
+
+    // fallback: compute from localStorage conversation cache
+    const convs = JSON.parse(localStorage.getItem('conversations') || '[]');
+    document.getElementById('statConvos').textContent = convs.length;
+    // try to estimate messages by calling /api/messages for each recent convo (best effort)
+    let totalMessages = 0;
+    let activityMap = {}; // date => count
+    for (const c of convs.slice(0, 8)){
+      try {
+        const r = await fetch(`/api/messages/?conversation_id=${c.id}`, { credentials: 'same-origin' });
+        if (!r.ok) continue;
+        const data = await r.json();
+        const list = data.messages || data;
+        totalMessages += list.length;
+        list.forEach(m => {
+          const d = new Date(m.created_at || m.createdAt || Date.now());
+          const day = d.toISOString().slice(0,10);
+          activityMap[day] = (activityMap[day] || 0) + 1;
+        });
+      } catch(e){}
+    }
+    document.getElementById('statMessages').textContent = totalMessages;
+    // naive latency sample (not available client-side) — show dash
+    document.getElementById('statLatency').textContent = '—';
+    document.getElementById('statActive').textContent = convs.filter(c => c.last).length;
+    document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+
+    // convert activityMap to array for chart (last 7 days)
+    const today = new Date();
+    const last7 = [];
+    for (let i=6; i>=0; --i){
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const key = d.toISOString().slice(0,10);
+      last7.push({ day: key, count: activityMap[key] || 0 });
+    }
+    renderActivityChart(last7);
+    renderRecent(convs.slice(0, 10));
+  }
+
+  // render recent conversation list (accept either server objects or local ones)
+  function renderRecent(list){
+    const container = document.getElementById('recentList');
+    container.innerHTML = '';
+    if (!list || !list.length) {
+      container.innerHTML = '<div style="color:var(--muted)">No recent conversations</div>';
+      return;
+    }
+    list.forEach(item => {
+      const id = item.id || item.conversation_id || item._id || item;
+      const name = item.name || item.title || ('Conv ' + (id||'').slice(0,8));
+      const last = item.last || (item.last_message && item.last_message.slice(0,80)) || '';
+      const el = document.createElement('div');
+      el.style.display='flex'; el.style.flexDirection='column'; el.style.padding='10px'; el.style.borderRadius='8px';
+      el.style.background='rgba(255,255,255,0.02)'; el.style.cursor='pointer';
+      el.innerHTML = `<div style="font-weight:700">${name}</div><div style="color:var(--muted);font-size:0.9rem;margin-top:6px">${last}</div>`;
+      el.onclick = () => { window.location = '/chat/?conversation_id=' + id; };
+      container.appendChild(el);
+    });
+  }
+
+  // simple line chart with canvas (no external libs)
+  function renderActivityChart(data){
+    // data: [{day:'2025-12-04',count:3}, ...] length ~7
+    if (!data || !data.length) {
+      // clear canvas
+      const ctxEmpty = document.getElementById('activityChart').getContext('2d');
+      ctxEmpty.clearRect(0,0,800,220);
+      ctxEmpty.fillStyle = 'rgba(255,255,255,0.03)';
+      ctxEmpty.fillRect(0,0,800,220);
+      return;
+    }
+    const canvas = document.getElementById('activityChart');
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0,0,w,h);
+
+    // background subtle
+    ctx.fillStyle = 'rgba(255,255,255,0.01)';
+    ctx.fillRect(0,0,w,h);
+
+    const counts = data.map(d => d.count || 0);
+    const labels = data.map(d => d.day.slice(5)); // MM-DD
+
+    const max = Math.max(1, ...counts);
+    const pad = 28;
+    const usableH = h - pad*2;
+    const usableW = w - pad*2;
+
+    // draw grid lines
+    ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+    ctx.lineWidth = 1;
+    for (let i=0;i<=4;i++){
+      const y = pad + i*(usableH/4);
+      ctx.beginPath(); ctx.moveTo(pad,y); ctx.lineTo(pad+usableW,y); ctx.stroke();
+    }
+
+    // draw line path
+    ctx.strokeStyle = 'rgba(96,165,250,0.95)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    data.forEach((pt, idx) => {
+      const x = pad + (idx/(data.length-1 || 1))*usableW;
+      const y = pad + usableH - (pt.count / max) * usableH;
+      if (idx===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+
+    // draw points
+    ctx.fillStyle = 'rgba(6,182,212,1)';
+    data.forEach((pt, idx) => {
+      const x = pad + (idx/(data.length-1 || 1))*usableW;
+      const y = pad + usableH - (pt.count / max) * usableH;
+      ctx.beginPath();
+      ctx.arc(x,y,4,0,Math.PI*2);
+      ctx.fill();
+    });
+
+    // labels
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.font = '12px Inter, Arial';
+    data.forEach((pt, idx) => {
+      const x = pad + (idx/(data.length-1 || 1))*usableW;
+      const y = h - 6;
+      ctx.fillText(labels[idx], x-12, y);
+    });
+  }
+
+  // quick actions
+  function exportAll(){
+    // try server export endpoint, else export local conversations
+    (async ()=>{
+      const server = await tryFetchJson('/api/export_all/');
+      if (server && server.download_url) {
+        window.open(server.download_url, '_blank');
+        return;
+      }
+      // fallback local
+      const convs = JSON.parse(localStorage.getItem('conversations') || '[]');
+      const blob = new Blob([JSON.stringify(convs, null, 2)], {type:'application/json'});
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download='conversations.json'; a.click(); URL.revokeObjectURL(a.href);
+    })();
+  }
+
+  function clearAllClientData(){
+    if (!confirm('Clear local conversation metadata? This does not delete server-side messages.')) return;
+    localStorage.removeItem('conversations');
+    alert('Local data cleared. Refreshing.');
+    location.reload();
+  }
+
+  // on page load
+  (function init(){
+    populateStats();
+    // poll server status occasionally
+    setInterval(async ()=>{
+      const ok = await tryFetchJson('/api/health/');
+      document.getElementById('sysStatus').textContent = ok ? 'OK' : 'Unavailable';
+      document.getElementById('sysStatus').style.color = ok ? '#60a5fa' : '#f87171';
+    }, 60_000);
+  })();
+</script>
+{% endblock %}

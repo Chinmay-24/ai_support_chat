@@ -1,0 +1,23 @@
+{% extends "chat/base.html" %}
+{% block title %}Help • AI Support{% endblock %}
+
+{% block layout %}
+<h2>Help & Documentation</h2>
+
+<div style="background:var(--panel);padding:12px;border-radius:10px">
+  <h3>How to use</h3>
+  <ol>
+    <li>Open <strong>Chat</strong> to start or continue a conversation.</li>
+    <li>Use the <strong>New</strong> button to start a fresh chat session.</li>
+    <li>Export or download conversations using the topbar buttons.</li>
+    <li>View stored conversations on the <strong>Conversations</strong> page.</li>
+  </ol>
+
+  <h3>Troubleshooting</h3>
+  <ul>
+    <li>If chat returns an error, check Django console for tracebacks.</li>
+    <li>Ensure MongoDB is running locally and `MONGODB_DB_NAME` is set in `settings.py`.</li>
+    <li>If API key is invalid, rotate it in Google AI Studio and update `settings.py`.</li>
+  </ul>
+</div>
+{% endblock %}

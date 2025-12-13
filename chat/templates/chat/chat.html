@@ -1,0 +1,226 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Support Chat</title>
+
+    <style>
+    
+        body {
+            margin: 0;
+            font-family: "Inter", sans-serif;
+            background-color: #0f172a;
+            color: white;
+            overflow: hidden;
+        }
+
+        .layout {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 300px;
+            background: #1e293b;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+            border-right: 1px solid #334155;
+        }
+
+        .app-title {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            opacity: 0.7;
+        }
+
+        .button {
+            background: #334155;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            background: #475569;
+        }
+
+        .conversation-item {
+            background: #0f172a;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 1px solid #334155;
+            margin-bottom: 6px;
+        }
+
+        .conversation-item:hover {
+            background: #1e293b;
+        }
+
+        /* Chat Area */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #334155;
+        }
+
+        #chatMessages {
+            flex: 1;
+            overflow-y: auto;
+            padding-top: 20px;
+        }
+
+        .bubble-user {
+            background: #3b82f6;
+            padding: 10px 14px;
+            max-width: 65%;
+            margin-left: auto;
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+
+        .bubble-ai {
+            background: #1e293b;
+            padding: 10px 14px;
+            max-width: 65%;
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #334155;
+        }
+
+        #messageInput {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background: #1e293b;
+            color: white;
+        }
+
+        #sendBtn {
+            background: #0ea5e9;
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            color: black;
+            font-weight: bold;
+        }
+
+        #sendBtn:hover {
+            background: #38bdf8;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layout">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="app-title">AI Support Chat</div>
+            <div class="subtitle">Django • MongoDB • Gemini</div>
+
+            <button class="button" onclick="newConversation()">+ New Conversation</button>
+
+            <div style="margin-top: 15px; opacity: 0.7;">Recent</div>
+            <div id="conversationList"></div>
+
+            <br><br>
+            <div style="opacity:0.7;">Created by <b>Chinmay Naik</b></div>
+        </div>
+
+        <!-- CHAT AREA -->
+        <div class="chat-area">
+
+            <div class="topbar">
+                <div style="font-size:18px; font-weight:bold;">Conversation</div>
+            </div>
+
+            <div id="chatMessages"></div>
+
+            <div class="input-row">
+                <textarea id="messageInput" rows="2" placeholder="Type your message..."></textarea>
+                <button id="sendBtn" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const csrftoken = '{{ csrf_token }}';
+        const conversationId = "{{ conversation_id }}";
+
+        function addBubble(text, isUser=false) {
+            const box = document.getElementById("chatMessages");
+            const bubble = document.createElement("div");
+            bubble.className = isUser ? "bubble-user" : "bubble-ai";
+            bubble.innerText = text;
+            box.appendChild(bubble);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById("messageInput");
+            const text = input.value.trim();
+            if (!text) return;
+
+            addBubble(text, true);
+            input.value = "";
+
+            try {
+                const res = await fetch("/api/chat/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": csrftoken
+                    },
+                    body: JSON.stringify({
+                        message: text,
+                        conversation_id: conversationId
+                    })
+                });
+
+                const data = await res.json();
+                addBubble(data.reply || "No reply", false);
+
+            } catch (e) {
+                addBubble("Network error", false);
+            }
+        }
+
+        function newConversation() {
+            window.location.href = "/chat/?new=1";
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>{% block title %}AI Support Chat{% endblock %}</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root {
+      --bg: #0b1220; --panel: rgba(255,255,255,0.03); --text:#e6eef8; --muted:#9ca3af; --accent:#06b6d4;
+      --radius:12px;
+    }
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial;background:var(--bg);color:var(--text)}
+    a{color:var(--accent);text-decoration:none}
+    .topbar{height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid rgba(255,255,255,0.03)}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#2563eb,#06b6d4);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
+    .site-title{font-weight:700}
+    .top-actions{display:flex;gap:12px;align-items:center}
+    .btn{padding:8px 10px;border-radius:9px;background:rgba(255,255,255,0.03);color:var(--text);border:none;cursor:pointer}
+    .btn.primary{background:linear-gradient(135deg,#2563eb,#06b6d4);color:#fff}
+    .layout{display:flex;height:calc(100vh - 64px);padding:18px;gap:18px;box-sizing:border-box}
+    .sidebar{width:280px;min-width:200px;background:var(--panel);padding:14px;border-radius:var(--radius);display:flex;flex-direction:column;gap:12px;overflow:auto}
+    .main{flex:1;display:flex;flex-direction:column;min-width:0}
+    .card{background:var(--panel);border-radius:12px;padding:12px;height:100%;display:flex;flex-direction:column;overflow:hidden}
+    .sidebar .small{color:var(--muted);font-size:0.9rem}
+    .credit{text-align:center;color:var(--muted);margin-top:auto;font-size:0.9rem}
+    .domain-select{padding:8px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.03);color:var(--text)}
+    @media (max-width:900px){.sidebar{display:none}}
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<!-- ================= TOPBAR ================= -->
+<div class="topbar">
+    <div class="topbar-left">
+        <div class="logo-box">
+            <div class="logo-circle">AI</div>
+            <div class="logo-text">
+                <div class="title">AI Support Chat</div>
+                <div class="subtitle">Django • MongoDB • Gemini</div>
+            </div>
+        </div>
+
+        <!-- NAV LINKS -->
+        <div class="nav-links">
+            <button class="nav-btn" onclick="location.href='/'">Home</button>
+            <button class="nav-btn" onclick="alert('Dashboard Coming Soon')">Dashboard</button>
+            <button class="nav-btn" onclick="location.href='/chat/'">Chat</button>
+            <button class="nav-btn" onclick="alert('Tools Coming Soon')">Tools</button>
+            <button class="nav-btn" onclick="alert('Help Coming Soon')">Help</button>
+        </div>
+    </div>
+
+    <div class="topbar-right">
+
+        <!-- DOMAIN SELECT -->
+        <select id="purposeSelect" class="top-select" onchange="onPurposeChange(event)">
+            <option value="general">General</option>
+            <option value="tech">Tech Support</option>
+            <option value="customer">Customer Support</option>
+            <option value="healthcare">Healthcare</option>
+        </select>
+
+        <!-- SETTINGS BTN -->
+        <button class="icon-btn" onclick="alert('Settings Coming Soon')">⚙</button>
+
+        <!-- THEME TOGGLE -->
+        <button class="icon-btn" onclick="toggleTheme()">☀/🌙</button>
+
+        <!-- PROFILE -->
+        <div class="profile-box" onclick="alert('Profile Coming Soon!')">
+            <div class="profile-circle">C</div>
+            <span>Chinmay</span>
+        </div>
+    </div>
+</div>
+
+<body data-theme="dark">
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">AI</div>
+      <div>
+        <div class="site-title">AI Support Chat</div>
+        <div style="font-size:0.85rem;color:var(--muted)">Django • MongoDB • Gemini</div>
+      </div>
+    </div>
+
+    <div class="top-actions">
+  <label for="domainSelect" style="font-size:0.85rem;color:var(--muted);margin-right:6px">Purpose</label>
+
+  <select id="domainSelect" class="domain-select" onchange="onDomainChange(event)">
+    <option value="general">General</option>
+    <option value="tech">Tech Support</option>
+    <option value="customer">Customer Support</option>
+    <option value="healthcare">Healthcare</option>
+  </select>
+
+  <!-- NEW NAVBAR BUTTONS -->
+  <button class="btn" onclick="location.href='/dashboard'">Dashboard</button>
+  <button class="btn" onclick="alert('Analytics Coming Soon!')">Analytics</button>
+  <button class="btn" onclick="alert('Settings Coming Soon!')">Settings</button>
+  <button class="btn" onclick="toggleTheme()">Toggle Theme</button>
+
+  <div style="width:8px"></div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <div style="font-size:0.9rem;color:var(--muted)">Signed in as</div>
+    <div class="btn" onclick="alert('Profile Coming Soon!')">Chinmay</div>
+  </div>
+</div>
+
+  </div>
+
+  <div class="layout">
+    <div class="sidebar">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-weight:700;font-size:1.1rem">Conversations</div>
+        <button class="btn" onclick="newConversation()">+ New</button>
+      </div>
+
+      <input id="sidebarFilter" placeholder="Filter..." style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)">
+
+      <div id="convoList" style="display:flex;flex-direction:column;gap:8px;margin-top:8px"></div>
+
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn" onclick="exportText()">Export</button>
+        <button class="btn" onclick="downloadJSON()">JSON</button>
+        <button class="btn" onclick="clearChat()">Clear UI</button>
+      </div>
+
+      <div class="credit">Created by <strong>Chinmay Naik</strong></div>
+    </div>
+
+    <div class="main">
+      {% block layout %}
+      <div class="card">
+        <h2>Welcome</h2>
+        <p style="color:var(--muted)">Choose a conversation or start a new one. Use the Purpose selector in the topbar to change assistant behavior (Healthcare, Customer Support, Tech Support, General).</p>
+      </div>
+      {% endblock %}
+    </div>
+  </div>
+
+  <script>
+    // Global domain selection wiring
+    const domainSelect = document.getElementById('domainSelect');
+    // restore saved domain or default
+    const savedDomain = localStorage.getItem('assistant_domain') || 'general';
+    domainSelect.value = savedDomain;
+
+    function onDomainChange(e){
+      const value = e.target.value;
+      localStorage.setItem('assistant_domain', value);
+      // optional small UX feedback
+      console.log('assistant domain set to', value);
+    }
+
+    // Expose helper for child templates (so chat.html can call window.getAssistantSystemPrompt())
+    window.getAssistantSystemPrompt = function(){
+      const domain = localStorage.getItem('assistant_domain') || domainSelect.value || 'general';
+      // map domain to a recommended system prompt (customize later)
+      const map = {
+        general: "You are a helpful assistant. Answer clearly and concisely.",
+        tech: "You are a technical support assistant. Ask clarifying questions, provide step-by-step troubleshooting, assume user is a developer or tech-savvy unless stated otherwise.",
+        customer: "You are a friendly customer support agent. Be polite, empathic, and provide options and next steps.",
+        healthcare: "You are a healthcare information assistant. Provide general health information, always encourage consulting a professional, do not give diagnoses, and include safety/warning when appropriate."
+      };
+      return map[domain] || map.general;
+    };
+  </script>
+
+  {% block extra_body %}{% endblock %}
+</body>
+</html>

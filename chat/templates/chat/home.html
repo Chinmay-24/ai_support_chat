@@ -1,0 +1,26 @@
+{% extends "chat/base.html" %}
+
+{% block title %}Home • AI Support Chat{% endblock %}
+
+{% block layout %}
+  <div style="padding:24px">
+    <h1>Welcome to AI Support Chat</h1>
+    <p style="color:var(--muted)">A demo app built with Django, MongoDB and Gemini.</p>
+
+    <div style="display:flex;gap:12px;margin-top:18px">
+      <a href="{% url 'chat_page' %}" class="btn primary">Open Chat</a>
+      <a href="{% url 'dashboard' %}" class="btn">Dashboard</a>
+      <a href="{% url 'conversations' %}" class="btn ghost">Conversations</a>
+      <a href="{% url 'help' %}" class="btn">Help</a>
+    </div>
+
+    <section style="margin-top:22px;background:var(--panel);padding:14px;border-radius:10px">
+      <h3>Quick info</h3>
+      <ul style="color:var(--muted)">
+        <li>Chat is live at <code>/chat/</code></li>
+        <li>Conversations are stored in MongoDB</li>
+        <li>Use the sidebar to manage conversations</li>
+      </ul>
+    </section>
+  </div>
+{% endblock %}
