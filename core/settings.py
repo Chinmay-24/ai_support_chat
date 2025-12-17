@@ -18,7 +18,7 @@ env_path = BASE_DIR / ".env"
 
 MONGODB_URI = 'mongodb://localhost:27017'
 MONGODB_DB_NAME = 'ai_support_chat_db'
-GEMINI_API_KEY = 'AIzaSyAPgzQXsa6Z1Uk1-x2-isr_2SIt2ZZrNEo'
+GEMINI_API_KEY = ''
 
 
 # Quick-start development settings - unsuitable for production
